@@ -1,0 +1,6 @@
+/packages
+/Ark.ElasticSearch/obj
+/Ark.ElasticSearch/bin
+/Ark.StepRunner/bin
+/Ark.StepRunner/obj
+/.vs
