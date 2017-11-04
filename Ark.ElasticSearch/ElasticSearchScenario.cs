@@ -90,7 +90,20 @@ namespace Ark.ElasticSearch
         {
             CleanAllRunningProcesses_ElastiSearch_Kibana();
 
-            Directory.Delete(ElsticSearchNode, recursive: true);
+            int x = 10;
+            while (x-- > 0)
+            {
+                try
+                {
+                    Directory.Delete(ElsticSearchNode, recursive: true);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    return;
+                }
+                catch (Exception exception)
+                {
+                    _logger.Warning(exception, "Trying to remove old elastic search data.");
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
@@ -142,9 +155,16 @@ namespace Ark.ElasticSearch
         [ABusinessStepScenario((int)ScenarioSteps.SendingIndex, "Sending Index.")]
         public void SendingIndex()
         {
+            int id = 0;
+            Random random = new Random();
+
             A.Configure<Person>()
-             .Fill(p => p.Age)
-             .WithinRange(19, 100);
+             .Fill(p => p.Id, () => ++id)
+             .Fill(p => p.Name).AsFirstName()
+             .Fill(p => p.FamilyName).AsLastName()
+             .Fill(p => p.Age).WithinRange(19, 60)
+             .Fill(p => p.City).AsCity()
+             .Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
 
             var people = A.ListOf<Person>(200);
 
@@ -154,11 +174,12 @@ namespace Ark.ElasticSearch
             var client = new ElasticClient(settings);
 
 
+            int index = 0;
             foreach (var person in people)
             {
                 var tmp = client.Index(person);
 
-                _logger.Information("The response is {@person}", person);
+                _logger.Information("[{index}]: The response is {@person}", ++index, person);
                 //_logger.Information("The response is {@tmp}", tmp);
             }
         }
@@ -209,7 +230,7 @@ namespace Ark.ElasticSearch
                 }
             }
 
-          
+
         }
     }
 
