@@ -1,8 +1,10 @@
 ﻿using Ark.StepRunner.CustomAttribute;
+using Ark.StepRunner.ScenarioStepResult;
 using Elasticsearch.Net;
 using GenFu;
 using Nest;
 using Serilog;
+using Serilog.Sinks.Elasticsearch;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,6 +27,7 @@ namespace Ark.ElasticSearch
             LaunchKibana,
             VerifyElasticSearchIsUp,
             SendingIndex,
+            VerifyingEverythingInElasticsearch,
             CancelAllRunningThreads,
             CleanAllRunningProcesses,
         }
@@ -152,8 +155,11 @@ namespace Ark.ElasticSearch
 
         //--------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
         [ABusinessStepScenario((int)ScenarioSteps.SendingIndex, "Sending Index.")]
-        public void SendingIndex()
+        public ScenarioStepReturnNextStep SendingIndex()
         {
             int id = 0;
             Random random = new Random();
@@ -174,22 +180,53 @@ namespace Ark.ElasticSearch
             var client = new ElasticClient(settings);
 
 
-            int index = 0;
+            int index = 0, age = 50, isOver50 = 0;
+
+
             foreach (var person in people)
             {
                 var tmp = client.Index(person);
 
-                _logger.Information("[{index}]: The response is {@person}", ++index, person);
-                //_logger.Information("The response is {@tmp}", tmp);
+                _logger.Information("[{index}]: The {@person}", ++index, person);
+                if (person.Age == age)
+                {
+                    isOver50++;
+                }
             }
+
+            return new ScenarioStepReturnNextStep(age, isOver50);
         }
 
+        //--------------------------------------------------------------------------------------------------------------------------------------
+
+        [ABusinessStepScenario((int)ScenarioSteps.VerifyingEverythingInElasticsearch, "Verifying Everything In Elasticsearch.")]
+        public void VerifyingEverythingInElasticsearch(int age, int isOver50)
+        {
+            var uri = new Uri("http://localhost:9200");
+            var settings = new ConnectionSettings(uri).DefaultIndex("ark-personstorage");
+            var elasticLowLevelClient = new ElasticLowLevelClient(settings);
+            var client = new ElasticClient(settings);
+
+            var searchResults = client.Search<Person>(s => s
+                                      .From(0)
+                                      .Size(10)
+                                      .Query(q => q
+                                      .Term(p => p.Age, age.ToString())));
+
+            if (isOver50 != searchResults.Documents.Count)
+            {
+                throw new Exception("isOver50 != searchResults.Documents.Count");
+            }
+
+        }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
+
 
         [AStepCleanupScenario((int)ScenarioSteps.CancelAllRunningThreads, "Cancel All running threads.")]
         public void CancelAllRunningThreads()
         {
+
             _cancellationTokenSource.Cancel();
         }
 

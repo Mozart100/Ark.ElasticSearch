@@ -9,13 +9,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Serilog.Core;
+using Serilog.Sinks.Elasticsearch;
 
 namespace Ark.ElasticSearch
 {
     class Program
     {
 
-        const string OutTemplate = " {Environment} | {Timestamp:yyyy-MM-dd HH:mm:ss} | [{Level}] | {Message}{NewLine}{Exception}";
+        const string OutTemplate = "{Environment} | {Timestamp:yyyy-MM-dd HH:mm:ss} | [{Level}] | {Message}{NewLine}{Exception}";
 
         //const string OutTemplate = " {Environment} | {Timestamp:yyyy-MM-dd HH:mm:ss} | [{Level}] | {Bookmark} | {Message}{NewLine}{Exception}";
 
@@ -58,6 +59,14 @@ namespace Ark.ElasticSearch
         {
             _logger = new LoggerConfiguration()
                 .WriteTo.Console(outputTemplate: OutTemplate)
+                 //.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+                 //{
+                     
+                 //    AutoRegisterTemplate = true,
+                 //    //MinimumLogEventLevel = (LogEventLevel)esConfig.MinimumLogEventLevel,
+                 //    CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true),
+                 //    IndexFormat = "ark-personstorage"
+                 //})
                 .Enrich.WithProperty("Environment", "Developer")
                 .Enrich.FromLogContext()
                 .CreateLogger();
