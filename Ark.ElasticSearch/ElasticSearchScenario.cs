@@ -2,6 +2,7 @@
 using Ark.StepRunner.ScenarioStepResult;
 using Elasticsearch.Net;
 using GenFu;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nest;
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
@@ -111,7 +112,6 @@ namespace Ark.ElasticSearch
 
         //--------------------------------------------------------------------------------------------------------------------------------------
 
-
         [AStepSetupScenario((int)ScenarioSteps.LaunchElasticsearch, "Launch Elastic Search Agent.")]
         public void LaunchElasticSearch()
         {
@@ -127,7 +127,6 @@ namespace Ark.ElasticSearch
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
-
 
         [AStepSetupScenario((int)ScenarioSteps.VerifyElasticSearchIsUp, "Verify Elastic Search is up.")]
         public void VerifyElasticSearchIsUp()
@@ -155,9 +154,6 @@ namespace Ark.ElasticSearch
 
         //--------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
         [ABusinessStepScenario((int)ScenarioSteps.SendingIndex, "Sending Index.")]
         public ScenarioStepReturnNextStep SendingIndex()
         {
@@ -176,7 +172,6 @@ namespace Ark.ElasticSearch
 
             var uri = new Uri("http://localhost:9200");
             var settings = new ConnectionSettings(uri).DefaultIndex("ark-personstorage");
-            var elasticLowLevelClient = new ElasticLowLevelClient(settings);
             var client = new ElasticClient(settings);
 
 
@@ -213,11 +208,7 @@ namespace Ark.ElasticSearch
                                       .Query(q => q
                                       .Term(p => p.Age, age.ToString())));
 
-            if (isOver50 != searchResults.Documents.Count)
-            {
-                throw new Exception("isOver50 != searchResults.Documents.Count");
-            }
-
+            Assert.AreEqual(isOver50, searchResults.Documents.Count, "isOver50 != searchResults.Documents.Count");
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
