@@ -10,13 +10,13 @@ namespace Ark.TracePyramid
 {
     public static class SerilogLocalExtensions
     {
-        public static TraceInfo ToTraceInfo<TBookmark>(this ILogger logger , 
-            Expression<Func<TBookmark,string>> bookMarkName)
+        public static TraceInfo ToTraceInfo<TBookmark>(this ILogger logger,
+            Expression<Func<TBookmark, string>> bookMarkName)
             where TBookmark : SerilogBookmarkBase
         {
             var memerExpre = bookMarkName.Body as MemberExpression;
-            
-            if ( memerExpre == null)
+
+            if (memerExpre == null)
             {
                 throw new Exception("asdsa");
             }
@@ -27,15 +27,21 @@ namespace Ark.TracePyramid
             var property = instance.GetType().GetProperty(propertyName);
             var value = property.GetValue(instance);
 
-            var tracInfo  =  new TraceInfo { Logger = logger };
+            var tracInfo = new TraceInfo { Logger = logger };
             tracInfo.Bookmarks.Add(value.ToString());
 
             return tracInfo;
         }
 
+        //--------------------------------------------------------------------------------------------------------------------------------------
 
+        public static void PrintSeperator(this ILogger logger)
+        {
+
+            logger.Information("--------------------------------------------------------------------------------------------------------------------------------------");
+        }
 
     }
 
-    
+
 }

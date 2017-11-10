@@ -112,6 +112,10 @@
       <Project>{cd1d3cbf-f11d-40f8-a0e9-7d3860dbf112}</Project>
       <Name>Ark.StepRunner</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Ark.TracePyramid\Ark.TracePyramid.csproj">
+      <Project>{43EBC817-F363-4D8F-9B02-904B6D490E82}</Project>
+      <Name>Ark.TracePyramid</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

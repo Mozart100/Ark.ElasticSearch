@@ -1,5 +1,6 @@
 ﻿using Ark.StepRunner.CustomAttribute;
 using Ark.StepRunner.ScenarioStepResult;
+using Ark.TracePyramid;
 using Elasticsearch.Net;
 using GenFu;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,13 +39,13 @@ namespace Ark.ElasticSearch
 
         const string ElasticSearchExe = @"C:\Program Files\Elastic\Elasticsearch\bin\elasticsearch.exe";
         const string ElsticSearchNode = @"C:\ProgramData\Elastic\Elasticsearch\data\nodes";
-        const string KibanahExe = @"C:\Program Files\Kibana\bin\kibana.bat";
+        const string KibanahExe       = @"C:\Program Files\Kibana\bin\kibana.bat";
 
 
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
 
-        private readonly ILogger _logger;
+        private readonly IStructuredLog _logger;
         private readonly Process _processElasticsearch;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly CancellationToken _cancellationToken;
@@ -53,7 +54,7 @@ namespace Ark.ElasticSearch
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
 
-        public ElasticSearchScenario(ILogger logger)
+        public ElasticSearchScenario(IStructuredLog logger)
         {
             _logger = logger;
 
@@ -108,6 +109,8 @@ namespace Ark.ElasticSearch
                     _logger.Warning(exception, "Trying to remove old elastic search data.");
                 }
             }
+
+            Directory.Delete(ElsticSearchNode, recursive: true);
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
@@ -131,10 +134,8 @@ namespace Ark.ElasticSearch
         [AStepSetupScenario((int)ScenarioSteps.VerifyElasticSearchIsUp, "Verify Elastic Search is up.")]
         public void VerifyElasticSearchIsUp()
         {
-
             while (_cancellationToken.IsCancellationRequested == false)
             {
-
                 var request = WebRequest.Create("http://localhost:9200");
                 request.Credentials = CredentialCache.DefaultCredentials;
 
@@ -149,7 +150,6 @@ namespace Ark.ElasticSearch
 
                 }
             }
-
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
@@ -169,18 +169,12 @@ namespace Ark.ElasticSearch
              .Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
 
             var people = A.ListOf<Person>(200);
-
-            var uri = new Uri("http://localhost:9200");
-            var settings = new ConnectionSettings(uri).DefaultIndex("ark-personstorage");
-            var client = new ElasticClient(settings);
-
-
             int index = 0, age = 50, isOver50 = 0;
 
 
             foreach (var person in people)
             {
-                var tmp = client.Index(person);
+                var tmp = _logger.StoreIndex(person);
 
                 _logger.Information("[{index}]: The {@person}", ++index, person);
                 if (person.Age == age)
@@ -217,7 +211,6 @@ namespace Ark.ElasticSearch
         [AStepCleanupScenario((int)ScenarioSteps.CancelAllRunningThreads, "Cancel All running threads.")]
         public void CancelAllRunningThreads()
         {
-
             _cancellationTokenSource.Cancel();
         }
 
@@ -257,8 +250,6 @@ namespace Ark.ElasticSearch
                     }
                 }
             }
-
-
         }
     }
 

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Serilog.Core;
 using Serilog.Sinks.Elasticsearch;
+using Ark.TracePyramid;
 
 namespace Ark.ElasticSearch
 {
@@ -59,14 +60,14 @@ namespace Ark.ElasticSearch
         {
             _logger = new LoggerConfiguration()
                 .WriteTo.Console(outputTemplate: OutTemplate)
-                 //.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
-                 //{
-                     
-                 //    AutoRegisterTemplate = true,
-                 //    //MinimumLogEventLevel = (LogEventLevel)esConfig.MinimumLogEventLevel,
-                 //    CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true),
-                 //    IndexFormat = "ark-personstorage"
-                 //})
+                //.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+                //{
+
+                //    AutoRegisterTemplate = true,
+                //    //MinimumLogEventLevel = (LogEventLevel)esConfig.MinimumLogEventLevel,
+                //    CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true),
+                //    IndexFormat = "ark-personstorage"
+                //})
                 .Enrich.WithProperty("Environment", "Developer")
                 .Enrich.FromLogContext()
                 .CreateLogger();
@@ -74,9 +75,16 @@ namespace Ark.ElasticSearch
 
         private static IContainer InitDi()
         {
+            //var uri = new Uri("http://localhost:9200");
+            //var settings = new ConnectionSettings(uri).DefaultIndex("ark-personstorage");
+            //var elasticLowLevelClient = new ElasticLowLevelClient(settings);
+            //var client = new ElasticClient(settings);
+
+            var structuredLogger = new StructuredLog(_logger, new ElasticConfig(uri: "http://localhost:9200", index: "ark-personstorage"));
+
             var container = new ContainerBuilder();
 
-            container.Register<ILogger>(x => _logger);
+            container.Register<IStructuredLog>(x => structuredLogger);
             container.RegisterType<ElasticSearchScenario>();
 
             return container.Build();

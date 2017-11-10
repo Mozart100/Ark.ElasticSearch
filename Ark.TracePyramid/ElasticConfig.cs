@@ -1,5 +1,4 @@
-﻿using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,22 +6,19 @@ using System.Threading.Tasks;
 
 namespace Ark.TracePyramid
 {
-    public class TraceInfo
+    public class ElasticConfig
     {
-        public TraceInfo()
+        public ElasticConfig(string uri, string index)
         {
-            Bookmarks = new List<string> ();
-
+            Uri = uri;
+            Index = index;
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
 
-
-        public ILogger Logger { get; set; }
-        public string Bookmark { get { return string.Join("|", Bookmarks); } }
-
-              
-        public List<string> Bookmarks { get;  }
+        public string Uri { get; }
+        public string Index { get; }
     }
+
 }
