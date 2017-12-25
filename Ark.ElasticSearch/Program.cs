@@ -79,13 +79,15 @@ namespace Ark.ElasticSearch
             //var settings = new ConnectionSettings(uri).DefaultIndex("ark-personstorage");
             //var elasticLowLevelClient = new ElasticLowLevelClient(settings);
             //var client = new ElasticClient(settings);
-
-            var structuredLogger = new StructuredLog(_logger, new ElasticConfig(uri: "http://localhost:9200", index: "ark-personstorage"));
+            var elasticSearchConfig = new ElasticConfig(uri: "http://localhost:9200", index: "ark-personstorage");
+            var structuredLogger = new StructuredLog(_logger, elasticSearchConfig);
 
             var container = new ContainerBuilder();
 
             container.Register<IStructuredLog>(x => structuredLogger);
             container.RegisterType<ElasticSearchScenario>();
+            container.Register(x => elasticSearchConfig);
+
 
             return container.Build();
         }

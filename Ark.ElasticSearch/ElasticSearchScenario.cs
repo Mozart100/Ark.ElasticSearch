@@ -50,13 +50,15 @@ namespace Ark.ElasticSearch
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly CancellationToken _cancellationToken;
         private readonly Process _processKibana;
+        private readonly ElasticConfig _elasticConfig;
 
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
 
-        public ElasticSearchScenario(IStructuredLog logger)
+        public ElasticSearchScenario(IStructuredLog logger, ElasticConfig elasticConfig)
         {
             _logger = logger;
+            _elasticConfig = elasticConfig;
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -65,10 +67,10 @@ namespace Ark.ElasticSearch
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = ElasticSearchExe,
-                    UseShellExecute = true,
+                    FileName         = ElasticSearchExe,
+                    UseShellExecute  = true,
                     WorkingDirectory = Path.GetDirectoryName(ElasticSearchExe),
-                    Arguments = ""
+                    Arguments        = ""
 
                 }
             };
@@ -78,10 +80,10 @@ namespace Ark.ElasticSearch
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = KibanahExe,
-                    UseShellExecute = true,
+                    FileName         = KibanahExe,
+                    UseShellExecute  = true,
                     WorkingDirectory = Path.GetDirectoryName(KibanahExe),
-                    Arguments = ""
+                    Arguments        = ""
 
                 }
             };
@@ -157,6 +159,7 @@ namespace Ark.ElasticSearch
         [ABusinessStepScenario((int)ScenarioSteps.SendingIndex, "Sending Index.")]
         public ScenarioStepReturnNextStep SendingIndex()
         {
+
             int id = 0;
             Random random = new Random();
 
@@ -169,15 +172,25 @@ namespace Ark.ElasticSearch
              .Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
 
             var people = A.ListOf<Person>(200);
+
+            id = 0;
+            A.Configure<IncidentReport>()
+                .Fill(r=>r.Id, ()=>id++)
+                .Fill(r => r.ReportedBy)
+                .WithRandom(people);
+
+            var incidents = A.ListOf<IncidentReport>(2000);
+
+
             int index = 0, age = 50, isOver50 = 0;
 
 
-            foreach (var person in people)
+            foreach (var incident in incidents)
             {
-                var tmp = _logger.StoreIndex(person);
+                var tmp = _logger.StoreIndex(incident);
 
-                _logger.Information("[{index}]: The {@person}", ++index, person);
-                if (person.Age == age)
+                _logger.Information("[{index}]: The {@incident}", ++index, incident);
+                if (incident.ReportedBy.Age == age)
                 {
                     isOver50++;
                 }
@@ -192,7 +205,7 @@ namespace Ark.ElasticSearch
         public void VerifyingEverythingInElasticsearch(int age, int isOver50)
         {
             var uri = new Uri("http://localhost:9200");
-            var settings = new ConnectionSettings(uri).DefaultIndex("ark-personstorage");
+            var settings = new ConnectionSettings(uri).DefaultIndex(_elasticConfig.Index);
             var elasticLowLevelClient = new ElasticLowLevelClient(settings);
             var client = new ElasticClient(settings);
 
