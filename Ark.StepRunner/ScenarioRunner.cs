@@ -12,6 +12,7 @@ using System.Diagnostics;
 
 namespace Ark.StepRunner
 {
+    [DebuggerStepThrough]
     public class ScenarioRunner
     {
         private class ScenarioStepReturnVoid : ScenarioStepReturnBase
@@ -154,7 +155,7 @@ namespace Ark.StepRunner
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
 
-        public ScenarioRunner(ILogger  logger, IContainer containerBuilder)
+        public ScenarioRunner(ILogger logger, IContainer containerBuilder)
         {
             _containerBuilder = containerBuilder;
             _logger = logger;
@@ -273,7 +274,6 @@ namespace Ark.StepRunner
                 ScenarioResult scenarioResultCurrent;
                 var taskScenarioStepBundle = RunScenarioStep(scenario, method, timeout, previousParameters, orderedMethods[index].Value.BusinessStepScenario);
 
-
                 if (isParallel == true)
                 {
                     tasks.Add(new Tuple<int, Task<ScenarioStepReturnResultBundle>>(index++, taskScenarioStepBundle));
@@ -282,9 +282,11 @@ namespace Ark.StepRunner
 
                 var resultBundle = taskScenarioStepBundle.Result;
 
+
                 _logger.Information("-------------------------------------------------------------------------------------------------------------------------------------");
                 _logger.Information("-------------------------------------------------------------------------------------------------------------------------------------");
                 _logger.Information("-------------------------------------------------------------------------------------------------------------------------------------");
+
 
                 scenarioResult += resultBundle.ScenarioResult;
 
@@ -342,7 +344,7 @@ namespace Ark.StepRunner
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
-
+        [DebuggerStepThrough]
         private async Task<ScenarioStepReturnResultBundle> RunScenarioStep<TScenario>(
             TScenario scenario,
             MethodInfo method,
@@ -425,7 +427,7 @@ namespace Ark.StepRunner
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
-
+        [DebuggerStepThrough]
         private class MethodInvoker
         {
             //--------------------------------------------------------------------------------------------------------------------------------------
@@ -437,7 +439,7 @@ namespace Ark.StepRunner
 
             //--------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------
-
+            [DebuggerStepThrough]
             public ScenarioStepReturnBase MethodInvoke<TScenario>(
                 TScenario scenario,
                 MethodInfo methodInfo,
@@ -476,7 +478,7 @@ namespace Ark.StepRunner
 
             //--------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------    
-
+            [DebuggerStepThrough]
             private async Task<ScenarioStepReturnBase> Invoke<TScenario>(
               TScenario scenario,
               MethodInfo method,

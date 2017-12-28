@@ -21,6 +21,7 @@ namespace Ark.ElasticSearch
         public DateTime RecordDate { get; set; }
 
         public string City { get; set; }
+        public string Country { get; set; }
 
         public string Name { get; set; }
         public string FamilyName { get; set; }

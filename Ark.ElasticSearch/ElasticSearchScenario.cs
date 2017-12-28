@@ -10,6 +10,7 @@ using Serilog.Sinks.Elasticsearch;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -39,7 +40,7 @@ namespace Ark.ElasticSearch
 
         const string ElasticSearchExe = @"C:\Program Files\Elastic\Elasticsearch\bin\elasticsearch.exe";
         const string ElsticSearchNode = @"C:\ProgramData\Elastic\Elasticsearch\data\nodes";
-        const string KibanahExe       = @"C:\Program Files\Kibana\bin\kibana.bat";
+        const string KibanahExe = @"C:\Program Files\Kibana\bin\kibana.bat";
 
 
         //--------------------------------------------------------------------------------------------------------------------------------------
@@ -51,6 +52,7 @@ namespace Ark.ElasticSearch
         private readonly CancellationToken _cancellationToken;
         private readonly Process _processKibana;
         private readonly ElasticConfig _elasticConfig;
+        private readonly IList<string> _countries;
 
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
@@ -67,10 +69,10 @@ namespace Ark.ElasticSearch
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName         = ElasticSearchExe,
-                    UseShellExecute  = true,
+                    FileName = ElasticSearchExe,
+                    UseShellExecute = true,
                     WorkingDirectory = Path.GetDirectoryName(ElasticSearchExe),
-                    Arguments        = ""
+                    Arguments = ""
 
                 }
             };
@@ -80,18 +82,21 @@ namespace Ark.ElasticSearch
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName         = KibanahExe,
-                    UseShellExecute  = true,
+                    FileName = KibanahExe,
+                    UseShellExecute = true,
                     WorkingDirectory = Path.GetDirectoryName(KibanahExe),
-                    Arguments        = ""
+                    Arguments = ""
 
                 }
             };
+
+            _countries = GetCountries();
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
 
+        [AExceptionIgnore]
         [AStepSetupScenario((int)ScenarioSteps.CleanAllRunningProcess, "Clean AllRunning Process.")]
         public void CleanAllRunningProcess()
         {
@@ -138,7 +143,7 @@ namespace Ark.ElasticSearch
         {
             while (_cancellationToken.IsCancellationRequested == false)
             {
-                var request = WebRequest.Create("http://localhost:9200");
+                var request = WebRequest.Create(_elasticConfig.Uri);
                 request.Credentials = CredentialCache.DefaultCredentials;
 
                 try
@@ -169,17 +174,18 @@ namespace Ark.ElasticSearch
              .Fill(p => p.FamilyName).AsLastName()
              .Fill(p => p.Age).WithinRange(19, 60)
              .Fill(p => p.City).AsCity()
+             .Fill(p => p.Country).WithRandom(_countries)
              .Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
 
             var people = A.ListOf<Person>(200);
 
             id = 0;
             A.Configure<IncidentReport>()
-                .Fill(r=>r.Id, ()=>id++)
+                .Fill(r => r.Id, () => id++)
                 .Fill(r => r.ReportedBy)
                 .WithRandom(people);
 
-            var incidents = A.ListOf<IncidentReport>(2000);
+            var incidents = A.ListOf<IncidentReport>(250);
 
 
             int index = 0, age = 50, isOver50 = 0;
@@ -204,7 +210,7 @@ namespace Ark.ElasticSearch
         [ABusinessStepScenario((int)ScenarioSteps.VerifyingEverythingInElasticsearch, "Verifying Everything In Elasticsearch.")]
         public void VerifyingEverythingInElasticsearch(int age, int isOver50)
         {
-            var uri = new Uri("http://localhost:9200");
+            var uri = new Uri(_elasticConfig.Uri);
             var settings = new ConnectionSettings(uri).DefaultIndex(_elasticConfig.Index);
             var elasticLowLevelClient = new ElasticLowLevelClient(settings);
             var client = new ElasticClient(settings);
@@ -263,6 +269,30 @@ namespace Ark.ElasticSearch
                     }
                 }
             }
+        }
+
+
+        private IList<string> GetCountries()
+        {
+            var regionInfos = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+                                         .Select(c => new RegionInfo(c.LCID))
+                                         .Distinct()
+                                         .Select(x=>x.EnglishName)
+                                         .ToList();
+
+            return new List<string> { "Iraq", "Israel", "Canada", "Italy" , "Brazil" , "Russia"};
+
+           
+            //List<RegionInfo> countries = new List<RegionInfo>();
+            //foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
+            //{
+            //    RegionInfo country = new RegionInfo(culture.LCID);
+            //    if (countries.Where(p => p.Name == country.Name).Count() == 0)
+            //        countries.Add(country);
+            //}
+            //var countries2 = countries.OrderBy(p => p.EnglishName).ToList();
+
+            return regionInfos;
         }
     }
 
