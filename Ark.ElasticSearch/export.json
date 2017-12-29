@@ -1,5 +1,22 @@
 [
   {
+    "_id": "AWCjonYE_i_1mDPcaxVR",
+    "_type": "dashboard",
+    "_source": {
+      "title": "Full_Dashboard",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"size_x\":12,\"size_y\":3,\"panelIndex\":1,\"type\":\"visualization\",\"id\":\"AWCjoEwk_i_1mDPcaxVQ\",\"col\":1,\"row\":1},{\"size_x\":6,\"size_y\":7,\"panelIndex\":2,\"type\":\"search\",\"id\":\"AWCgp60kV_z79K7xatjf\",\"col\":1,\"row\":4,\"columns\":[\"reportedBy.id\",\"reportedBy.name\",\"reportedBy.familyName\",\"reportedBy.age\"],\"sort\":[\"_score\",\"desc\"]},{\"size_x\":6,\"size_y\":3,\"panelIndex\":3,\"type\":\"visualization\",\"id\":\"AWCgvDyFAmB_xk90uOcK\",\"col\":7,\"row\":4}]",
+      "optionsJSON": "{\"darkTheme\":false}",
+      "uiStateJSON": "{\"P-2\":{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}},\"P-1\":{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[{\"query\":{\"match_all\":{}}}],\"highlightAll\":true,\"version\":true}"
+      }
+    }
+  },
+  {
     "_id": "AWCgp60kV_z79K7xatjf",
     "_type": "search",
     "_source": {
@@ -18,7 +35,7 @@
       ],
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"AWCguSdzAmB_xk90uOcJ\",\"highlightAll\":true,\"version\":true,\"query\":{\"query_string\":{\"query\":\"reportedBy.age:<40\",\"analyze_wildcard\":true}},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"AWCgpKojV_z79K7xatje\",\"type\":\"phrase\",\"key\":\"reportedBy.isSuccessful\",\"value\":\"true\",\"disabled\":false,\"alias\":null},\"query\":{\"match\":{\"reportedBy.isSuccessful\":{\"query\":true,\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
+        "searchSourceJSON": "{\"index\":\"AWCjmWoh_i_1mDPcaxVK\",\"highlightAll\":true,\"version\":true,\"query\":{\"query_string\":{\"query\":\"reportedBy.age:<40\",\"analyze_wildcard\":true}},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"AWCgpKojV_z79K7xatje\",\"type\":\"phrase\",\"key\":\"reportedBy.isSuccessful\",\"value\":\"true\",\"disabled\":false,\"alias\":null},\"query\":{\"match\":{\"reportedBy.isSuccessful\":{\"query\":true,\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
       }
     }
   },
@@ -32,7 +49,21 @@
       "description": "",
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"AWCguSdzAmB_xk90uOcJ\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        "searchSourceJSON": "{\"index\":\"AWCjmWoh_i_1mDPcaxVK\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "AWCjoEwk_i_1mDPcaxVQ",
+    "_type": "visualization",
+    "_source": {
+      "title": "Matrix_unique_people_count",
+      "visState": "{\"title\":\"Matrix_unique_people_count\",\"type\":\"metric\",\"params\":{\"addTooltip\":true,\"addLegend\":false,\"type\":\"gauge\",\"gauge\":{\"verticalSplit\":false,\"autoExtend\":false,\"percentageMode\":false,\"gaugeType\":\"Metric\",\"gaugeStyle\":\"Full\",\"backStyle\":\"Full\",\"orientation\":\"vertical\",\"colorSchema\":\"Green to Red\",\"gaugeColorMode\":\"None\",\"useRange\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"invertColors\":false,\"labels\":{\"show\":true,\"color\":\"black\"},\"scale\":{\"show\":false,\"labels\":false,\"color\":\"#333\",\"width\":2},\"type\":\"simple\",\"style\":{\"fontSize\":60,\"bgColor\":false,\"labelColor\":false,\"subText\":\"\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"cardinality\",\"schema\":\"metric\",\"params\":{\"field\":\"reportedBy.id\"}}],\"listeners\":{}}",
+      "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"AWCjmWoh_i_1mDPcaxVK\",\"query\":{\"match_all\":{}},\"filter\":[]}"
       }
     }
   }

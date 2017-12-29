@@ -7,9 +7,11 @@ using Serilog.Events;
 
 namespace Ark.TracePyramid
 {
-   public interface IStructuredLog : ILogger
+    public interface IStructuredLog : ILogger
     {
         IIndexResponse StoreIndex<TClass>(TClass item) where TClass : class;
+        IBulkResponse Bulk<TClass>(IEnumerable<TClass> list) where TClass : class;
+
     }
 
 
@@ -33,12 +35,29 @@ namespace Ark.TracePyramid
         //--------------------------------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------------------------------
 
-        //ELD
-        public IIndexResponse StoreIndex<TClass>(TClass item) where TClass:class
+        //ELK
+        public IIndexResponse StoreIndex<TClass>(TClass item) where TClass : class
         {
             return _client.Index(item);
         }
-        //ELD
+
+        public IBulkResponse Bulk<TClass>(IEnumerable<TClass> list) where TClass : class
+        {
+            var descriptor = new BulkDescriptor();
+
+            foreach (var item in list)
+            {
+
+                Information("ELK {@incident}", item);
+
+                descriptor.Index<TClass>(op => op
+                          .Document(item));
+            }
+
+            return _client.Bulk(descriptor);
+        }
+
+        //ELK
 
         //Serilog.ILogger
         public bool BindMessageTemplate(string messageTemplate, object[] propertyValues, out MessageTemplate parsedTemplate, out IEnumerable<LogEventProperty> boundProperties)

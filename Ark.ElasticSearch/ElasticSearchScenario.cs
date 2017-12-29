@@ -69,10 +69,10 @@ namespace Ark.ElasticSearch
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName         = ElasticSearchExe,
-                    UseShellExecute  = true,
+                    FileName = ElasticSearchExe,
+                    UseShellExecute = true,
                     WorkingDirectory = Path.GetDirectoryName(ElasticSearchExe),
-                    Arguments        = ""
+                    Arguments = ""
 
                 }
             };
@@ -82,10 +82,10 @@ namespace Ark.ElasticSearch
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName         = KibanahExe,
-                    UseShellExecute  = true,
+                    FileName = KibanahExe,
+                    UseShellExecute = true,
                     WorkingDirectory = Path.GetDirectoryName(KibanahExe),
-                    Arguments        = ""
+                    Arguments = ""
 
                 }
             };
@@ -178,7 +178,7 @@ namespace Ark.ElasticSearch
              .Fill(p => p.Country).AsUsaState()
              .Fill(p => p.BirthDate).AsPastDate();
 
-             //.Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
+            //.Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
 
 
             var people = A.ListOf<Person>(100);
@@ -186,25 +186,45 @@ namespace Ark.ElasticSearch
             id = 0;
             A.Configure<IncidentReport>()
                 .Fill(r => r.Id, () => id++)
-                .Fill(r=>r.ReportedOn, () => DateTime.Now.AddYears(-random.Next(0, 5)))
+                .Fill(r => r.ReportedOn, () => DateTime.Now.AddYears(-random.Next(0, 5)))
                 .Fill(r => r.ReportedBy).WithRandom(people);
 
             var incidents = A.ListOf<IncidentReport>(2500);
-            int index = 0, age = 50, isOver50 = 0;
+            int age = 50, isOver50 = 0;
+
+            var incidentBuilk = new List<IncidentReport>();
 
 
-            foreach (var incident in incidents)
+            for (int take = 1000, skip = 0; skip < incidents.Count; skip += take)
             {
-                var tmp = _logger.StoreIndex(incident);
-
-                _logger.Information("The {@incident}", incident);
-                //_logger.Information("[{index}]: The {@incident}", ++index, incident);
-
-                if (incident.ReportedBy.Age == age)
+                foreach (var item in incidents.Skip(skip).Take(take))
                 {
-                    isOver50++;
+
+                    if (item.ReportedBy.Age == age)
+                    {
+                        isOver50++;
+                    }
+
+                    incidentBuilk.Add(item);
                 }
+
+                _logger.Bulk(incidentBuilk);
+                incidentBuilk.Clear();
             }
+
+
+
+            //foreach (var incident in incidents)
+            //{
+            //    var tmp = _logger.StoreIndex(incident);
+
+            //    _logger.Information("The {@incident}", incident);
+
+            //    if (incident.ReportedBy.Age == age)
+            //    {
+            //        isOver50++;
+            //    }
+            //}
 
             return new ScenarioStepReturnNextStep(age, isOver50);
         }
@@ -214,18 +234,36 @@ namespace Ark.ElasticSearch
         [ABusinessStepScenario((int)ScenarioSteps.VerifyingEverythingInElasticsearch, "Verifying Everything In Elasticsearch.")]
         public void VerifyingEverythingInElasticsearch(int age, int isOver50)
         {
+            const string message = "isOver50 != searchResults.Documents.Count";
             var uri = new Uri(_elasticConfig.Uri);
             var settings = new ConnectionSettings(uri).DefaultIndex(_elasticConfig.Index);
             var elasticLowLevelClient = new ElasticLowLevelClient(settings);
             var client = new ElasticClient(settings);
 
-            var searchResults = client.Search<IncidentReport>(s => s
+            
+            int tries = 60;
+            while (tries-- > 0)
+            {
+                var searchResults = client.Search<IncidentReport>(s => s
                                       .From(0)
-                                      .Size(10)
-                                      .Query(q => q
-                                      .Term(p => p.ReportedBy.Age, age)));
+                                      .Size(500)
+                                      .Query(q =>q.Term(p => p.ReportedBy.Age, age)));
 
-            Assert.AreEqual(isOver50, searchResults.Documents.Count, "isOver50 != searchResults.Documents.Count");
+
+                try
+                {
+                    Assert.AreEqual(isOver50, searchResults.Documents.Count, message);
+                    return;
+                }
+                catch (Exception exception)
+                {
+                    _logger.Warning(exception, message);
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+
+            throw new Exception("isOver50 != searchResults.Documents.Count");
         }
 
         //--------------------------------------------------------------------------------------------------------------------------------------
