@@ -99,7 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ElasticSearchScenario.cs" />
-    <Compile Include="Person.cs" />
+    <Compile Include="IncidentReport.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

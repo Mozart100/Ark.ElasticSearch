@@ -1,29 +1,38 @@
 [
   {
-    "_id": "AWCPUg4bxjrwmolNsKOn",
-    "_type": "visualization",
+    "_id": "AWCgp60kV_z79K7xatjf",
+    "_type": "search",
     "_source": {
-      "title": "v_average_age",
-      "visState": "{\"aggs\":[{\"enabled\":true,\"id\":\"1\",\"params\":{\"field\":\"reportedBy.age\"},\"schema\":\"metric\",\"type\":\"avg\"}],\"listeners\":{},\"params\":{\"addLegend\":false,\"addTooltip\":true,\"gauge\":{\"autoExtend\":false,\"backStyle\":\"Full\",\"colorSchema\":\"Green to Red\",\"colorsRange\":[{\"from\":0,\"to\":100}],\"gaugeColorMode\":\"None\",\"gaugeStyle\":\"Full\",\"gaugeType\":\"Metric\",\"invertColors\":false,\"labels\":{\"color\":\"black\",\"show\":true},\"orientation\":\"vertical\",\"percentageMode\":false,\"scale\":{\"color\":\"#333\",\"labels\":false,\"show\":false,\"width\":2},\"style\":{\"bgColor\":false,\"fontSize\":60,\"labelColor\":false,\"subText\":\"\"},\"type\":\"simple\",\"useRange\":false,\"verticalSplit\":false},\"type\":\"gauge\"},\"title\":\"v_average_age\",\"type\":\"metric\"}",
-      "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"},\"legendOpen\":true}}",
+      "title": "q_successful_young_people",
       "description": "",
+      "hits": 0,
+      "columns": [
+        "reportedBy.id",
+        "reportedBy.name",
+        "reportedBy.familyName",
+        "reportedBy.age"
+      ],
+      "sort": [
+        "_score",
+        "desc"
+      ],
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"AWCPSIG0xjrwmolNsKOg\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        "searchSourceJSON": "{\"index\":\"AWCguSdzAmB_xk90uOcJ\",\"highlightAll\":true,\"version\":true,\"query\":{\"query_string\":{\"query\":\"reportedBy.age:<40\",\"analyze_wildcard\":true}},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"AWCgpKojV_z79K7xatje\",\"type\":\"phrase\",\"key\":\"reportedBy.isSuccessful\",\"value\":\"true\",\"disabled\":false,\"alias\":null},\"query\":{\"match\":{\"reportedBy.isSuccessful\":{\"query\":true,\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
       }
     }
   },
   {
-    "_id": "AWCPYK4gxjrwmolNsKOp",
+    "_id": "AWCgvDyFAmB_xk90uOcK",
     "_type": "visualization",
     "_source": {
-      "title": "v_table_how_many_in_each_city",
-      "visState": "{\"title\":\"v_table_how_many_in_each_city\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\",\"type\":\"table\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"reportedBy.city.keyword\",\"size\":20,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
-      "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+      "title": "pie_Incident_Per_Year",
+      "visState": "{\"title\":\"pie_Incident_Per_Year\",\"type\":\"pie\",\"params\":{\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":false,\"type\":\"pie\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"reportedOn\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Incident Per Year\"}}],\"listeners\":{}}",
+      "uiStateJSON": "{}",
       "description": "",
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"AWCPSIG0xjrwmolNsKOg\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        "searchSourceJSON": "{\"index\":\"AWCguSdzAmB_xk90uOcJ\",\"query\":{\"match_all\":{}},\"filter\":[]}"
       }
     }
   }

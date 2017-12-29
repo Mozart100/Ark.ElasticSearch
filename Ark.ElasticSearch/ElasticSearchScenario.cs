@@ -69,10 +69,10 @@ namespace Ark.ElasticSearch
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = ElasticSearchExe,
-                    UseShellExecute = true,
+                    FileName         = ElasticSearchExe,
+                    UseShellExecute  = true,
                     WorkingDirectory = Path.GetDirectoryName(ElasticSearchExe),
-                    Arguments = ""
+                    Arguments        = ""
 
                 }
             };
@@ -82,10 +82,10 @@ namespace Ark.ElasticSearch
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = KibanahExe,
-                    UseShellExecute = true,
+                    FileName         = KibanahExe,
+                    UseShellExecute  = true,
                     WorkingDirectory = Path.GetDirectoryName(KibanahExe),
-                    Arguments = ""
+                    Arguments        = ""
 
                 }
             };
@@ -97,7 +97,7 @@ namespace Ark.ElasticSearch
         //--------------------------------------------------------------------------------------------------------------------------------------
 
         [AExceptionIgnore]
-        [AStepSetupScenario((int)ScenarioSteps.CleanAllRunningProcess, "Clean AllRunning Process.")]
+        [AStepSetupScenario((int)ScenarioSteps.CleanAllRunningProcess, "Clean All Running Process.")]
         public void CleanAllRunningProcess()
         {
             CleanAllRunningProcesses_ElastiSearch_Kibana();
@@ -174,20 +174,22 @@ namespace Ark.ElasticSearch
              .Fill(p => p.FamilyName).AsLastName()
              .Fill(p => p.Age).WithinRange(19, 60)
              .Fill(p => p.City).AsCity()
-             .Fill(p => p.Country).WithRandom(_countries)
-             .Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
+             .Fill(p => p.IsSuccessful).WithRandom(new[] { true, true, false })
+             .Fill(p => p.Country).AsUsaState()
+             .Fill(p => p.BirthDate).AsPastDate();
 
-            var people = A.ListOf<Person>(200);
+             //.Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
+
+
+            var people = A.ListOf<Person>(100);
 
             id = 0;
             A.Configure<IncidentReport>()
                 .Fill(r => r.Id, () => id++)
-                .Fill(r => r.ReportedBy)
-                .WithRandom(people);
+                .Fill(r=>r.ReportedOn, () => DateTime.Now.AddYears(-random.Next(0, 5)))
+                .Fill(r => r.ReportedBy).WithRandom(people);
 
-            var incidents = A.ListOf<IncidentReport>(250);
-
-
+            var incidents = A.ListOf<IncidentReport>(2500);
             int index = 0, age = 50, isOver50 = 0;
 
 
@@ -195,7 +197,9 @@ namespace Ark.ElasticSearch
             {
                 var tmp = _logger.StoreIndex(incident);
 
-                _logger.Information("[{index}]: The {@incident}", ++index, incident);
+                _logger.Information("The {@incident}", incident);
+                //_logger.Information("[{index}]: The {@incident}", ++index, incident);
+
                 if (incident.ReportedBy.Age == age)
                 {
                     isOver50++;
@@ -215,11 +219,11 @@ namespace Ark.ElasticSearch
             var elasticLowLevelClient = new ElasticLowLevelClient(settings);
             var client = new ElasticClient(settings);
 
-            var searchResults = client.Search<Person>(s => s
+            var searchResults = client.Search<IncidentReport>(s => s
                                       .From(0)
                                       .Size(10)
                                       .Query(q => q
-                                      .Term(p => p.Age, age.ToString())));
+                                      .Term(p => p.ReportedBy.Age, age)));
 
             Assert.AreEqual(isOver50, searchResults.Documents.Count, "isOver50 != searchResults.Documents.Count");
         }
@@ -277,22 +281,11 @@ namespace Ark.ElasticSearch
             var regionInfos = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
                                          .Select(c => new RegionInfo(c.LCID))
                                          .Distinct()
-                                         .Select(x=>x.EnglishName)
+                                         .Select(x => x.EnglishName)
                                          .ToList();
 
-            return new List<string> { "Iraq", "Israel", "Canada", "Italy" , "Brazil" , "Russia"};
-
-           
-            //List<RegionInfo> countries = new List<RegionInfo>();
-            //foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
-            //{
-            //    RegionInfo country = new RegionInfo(culture.LCID);
-            //    if (countries.Where(p => p.Name == country.Name).Count() == 0)
-            //        countries.Add(country);
-            //}
-            //var countries2 = countries.OrderBy(p => p.EnglishName).ToList();
-
-            return regionInfos;
+            //return regionInfos;
+            return new List<string> { "Iraq", "Israel", "Canada", "Italy", "Brazil", "Russia" };
         }
     }
 
