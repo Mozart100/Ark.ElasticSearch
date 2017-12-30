@@ -5,8 +5,6 @@ using Elasticsearch.Net;
 using GenFu;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nest;
-using Serilog;
-using Serilog.Sinks.Elasticsearch;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,9 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Ark.ElasticSearch
 {
@@ -168,18 +164,17 @@ namespace Ark.ElasticSearch
             int id = 0;
             Random random = new Random();
 
+
             A.Configure<Person>()
              .Fill(p => p.Id, () => ++id)
              .Fill(p => p.Name).AsFirstName()
              .Fill(p => p.FamilyName).AsLastName()
              .Fill(p => p.Age).WithinRange(19, 60)
              .Fill(p => p.City).AsCity()
+             .Fill(p => p.Gender).WithRandom(new [] { "Male", "Male", "Female" })
              .Fill(p => p.IsSuccessful).WithRandom(new[] { true, true, false })
              .Fill(p => p.Country).AsUsaState()
              .Fill(p => p.BirthDate).AsPastDate();
-
-            //.Fill(p => p.RecordDate, () => DateTime.Now.AddYears(-random.Next(0, 5)));
-
 
             var people = A.ListOf<Person>(100);
 
@@ -197,16 +192,10 @@ namespace Ark.ElasticSearch
 
             for (int take = 1000, skip = 0; skip < incidents.Count; skip += take)
             {
-                foreach (var item in incidents.Skip(skip).Take(take))
-                {
+                var list = incidents.Skip(skip).Take(take);
+                incidentBuilk.AddRange(list);
 
-                    if (item.ReportedBy.Age == age)
-                    {
-                        isOver50++;
-                    }
-
-                    incidentBuilk.Add(item);
-                }
+                isOver50 += list.Count(x => x.ReportedBy.Age == age);
 
                 _logger.Bulk(incidentBuilk);
                 incidentBuilk.Clear();
@@ -214,6 +203,7 @@ namespace Ark.ElasticSearch
 
 
 
+            #region Index
             //foreach (var incident in incidents)
             //{
             //    var tmp = _logger.StoreIndex(incident);
@@ -224,7 +214,8 @@ namespace Ark.ElasticSearch
             //    {
             //        isOver50++;
             //    }
-            //}
+            //} 
+            #endregion
 
             return new ScenarioStepReturnNextStep(age, isOver50);
         }
@@ -235,19 +226,20 @@ namespace Ark.ElasticSearch
         public void VerifyingEverythingInElasticsearch(int age, int isOver50)
         {
             const string message = "isOver50 != searchResults.Documents.Count";
+
             var uri = new Uri(_elasticConfig.Uri);
             var settings = new ConnectionSettings(uri).DefaultIndex(_elasticConfig.Index);
             var elasticLowLevelClient = new ElasticLowLevelClient(settings);
             var client = new ElasticClient(settings);
 
-            
+
             int tries = 60;
             while (tries-- > 0)
             {
                 var searchResults = client.Search<IncidentReport>(s => s
                                       .From(0)
                                       .Size(500)
-                                      .Query(q =>q.Term(p => p.ReportedBy.Age, age)));
+                                      .Query(q => q.Term(p => p.ReportedBy.Age, age)));
 
 
                 try

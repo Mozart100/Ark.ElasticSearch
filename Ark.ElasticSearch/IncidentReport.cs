@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Ark.ElasticSearch
 {
+    public enum Gender
+    {
+        Male,Female
+    }
 
     public class IncidentReport
     {
@@ -23,6 +27,9 @@ namespace Ark.ElasticSearch
         public string City { get; set; }
         public string Country { get; set; }
         public bool IsSuccessful { get; set; }
+        public String Gender { get; set; }
+
+
 
         public string Name { get; set; }
         public string FamilyName { get; set; }
