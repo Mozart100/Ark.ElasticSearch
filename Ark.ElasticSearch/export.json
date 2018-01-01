@@ -27,7 +27,8 @@
         "reportedBy.id",
         "reportedBy.name",
         "reportedBy.familyName",
-        "reportedBy.age"
+        "reportedBy.age",
+        "reportedBy.isSuccessful"
       ],
       "sort": [
         "_score",
@@ -35,21 +36,7 @@
       ],
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"AWCqi8PudO891DUOYhAh\",\"highlightAll\":true,\"version\":true,\"query\":{\"query_string\":{\"query\":\"reportedBy.age:<40\",\"analyze_wildcard\":true}},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"AWCgpKojV_z79K7xatje\",\"type\":\"phrase\",\"key\":\"reportedBy.isSuccessful\",\"value\":\"true\",\"disabled\":false,\"alias\":null},\"query\":{\"match\":{\"reportedBy.isSuccessful\":{\"query\":true,\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
-      }
-    }
-  },
-  {
-    "_id": "AWCl9K3OHvypx0Ta1qy_",
-    "_type": "visualization",
-    "_source": {
-      "title": "DataTable_Is_Successful",
-      "visState": "{\"title\":\"DataTable_Is_Successful\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\",\"type\":\"table\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"cardinality\",\"schema\":\"metric\",\"params\":{\"field\":\"reportedBy.id\",\"customLabel\":\"Amount\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"reportedBy.gender.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Gender\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"reportedBy.isSuccessful\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Is Successful\"}}],\"listeners\":{}}",
-      "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
-      "description": "",
-      "version": 1,
-      "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"AWCqi8PudO891DUOYhAh\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        "searchSourceJSON": "{\"index\":\"AWCvyDrX6J2gsa7l2Vv2\",\"highlightAll\":true,\"version\":true,\"query\":{\"query_string\":{\"query\":\"reportedBy.age:<40 AND reportedBy.isSuccessful:true\",\"analyze_wildcard\":true}},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"AWCgpKojV_z79K7xatje\",\"type\":\"phrase\",\"key\":\"reportedBy.isSuccessful\",\"value\":\"true\",\"disabled\":false,\"alias\":null},\"query\":{\"match\":{\"reportedBy.isSuccessful\":{\"query\":true,\"type\":\"phrase\"}}},\"$state\":{\"store\":\"appState\"}}]}"
       }
     }
   },
@@ -63,7 +50,21 @@
       "description": "",
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"AWCqi8PudO891DUOYhAh\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        "searchSourceJSON": "{\"index\":\"AWCvyDrX6J2gsa7l2Vv2\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "AWCl9K3OHvypx0Ta1qy_",
+    "_type": "visualization",
+    "_source": {
+      "title": "DataTable_Is_Successful",
+      "visState": "{\"title\":\"DataTable_Is_Successful\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\",\"type\":\"table\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"cardinality\",\"schema\":\"metric\",\"params\":{\"field\":\"reportedBy.id\",\"customLabel\":\"Amount\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"reportedBy.gender.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Gender\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"reportedBy.isSuccessful\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Is Successful\"}}],\"listeners\":{}}",
+      "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"AWCvyDrX6J2gsa7l2Vv2\",\"query\":{\"match_all\":{}},\"filter\":[]}"
       }
     }
   },
@@ -77,7 +78,7 @@
       "description": "",
       "version": 1,
       "kibanaSavedObjectMeta": {
-        "searchSourceJSON": "{\"index\":\"AWCqi8PudO891DUOYhAh\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        "searchSourceJSON": "{\"index\":\"AWCvyDrX6J2gsa7l2Vv2\",\"query\":{\"match_all\":{}},\"filter\":[]}"
       }
     }
   }
